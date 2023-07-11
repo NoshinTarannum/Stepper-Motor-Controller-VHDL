@@ -1,0 +1,87 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity lab4_smd_code is
+    Port ( Clock : in  STD_LOGIC;
+           Reset : in  STD_LOGIC;
+           en : in  STD_LOGIC;
+           cw : in  STD_LOGIC;
+           o : out  STD_LOGIC_VECTOR(3 downto 0));
+end lab4_smd_code;
+
+architecture Behavioral of lab4_smd_code is
+
+type StateType is (S0, S1, S2, S3);
+signal State, nextState: StateType;
+
+begin
+
+	synch:
+	process(Clock, Reset)
+	begin
+		if (Reset = '1') then
+			State <= S0;
+		elsif rising_edge(Clock) then
+			State <= nextState;
+		end if;
+	end process;
+	
+
+	comb:
+	process(State, en, cw)
+	begin
+	nextState <= S0;
+	case State is
+	
+		when S0 =>
+		o <= "1000";
+			if (en = '0') then
+				nextState <= S0;
+			elsif (en = '1') then
+				if (cw = '0') then
+					nextState <= S3;
+				else
+					nextState <= S1;
+				end if;
+			end if;
+			
+		when S1 =>
+		o <= "0010";
+			if (en = '0') then
+				nextState <= S1;
+			elsif (en = '1') then
+				if (cw = '0') then
+					nextState <= S0;
+				else
+					nextState <= S2;
+				end if;
+			end if;
+			
+		when S2 =>
+		o <= "0100";
+			if (en = '0') then
+				nextState <= S2;
+			elsif (en = '1') then
+				if (cw = '0') then
+					nextState <= S1;
+				else
+					nextState <= S3;
+				end if;
+			end if;
+			
+		when S3 =>
+		o <= "0001";
+			if (en = '0') then
+				nextState <= S3;
+			elsif (en = '1') then
+				if (cw = '0') then
+					nextState <= S2;
+				else
+					nextState <= S0;
+				end if;
+			end if;
+		
+	end case;
+	end process;
+
+end Behavioral;
